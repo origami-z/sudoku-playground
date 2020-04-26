@@ -7,7 +7,8 @@ import {
   // columnCount,
   cellData,
   initializeBoard,
-  setPencilMark
+  setPencilMark,
+  clearPencilMark
 } from "./sudokuSlice";
 import { useKeyDown } from "../hooks/useKeyPress";
 
@@ -29,13 +30,21 @@ export function Sudoku() {
   const [selectedIndexes, setSelectedIndexes] = useState<CellIndex>({ row: undefined, column: undefined })
 
   useKeyDown(({ key, keyCode }) => {
-    if (keyCode > 48 && keyCode < 58 && selectedIndexes.row !== undefined && selectedIndexes.column !== undefined) {
-      console.log('keyDown', +key, 'cell', selectedIndexes.row, selectedIndexes.column)
-      dispatch(setPencilMark({
-        row: selectedIndexes.row,
-        column: selectedIndexes.column,
-        number: +key
-      }))
+    if (selectedIndexes.row !== undefined && selectedIndexes.column !== undefined) {
+      console.log('keyDown', key, 'cell', selectedIndexes.row, selectedIndexes.column)
+
+      if (keyCode > 48 && keyCode < 58) {
+        dispatch(setPencilMark({
+          row: selectedIndexes.row,
+          column: selectedIndexes.column,
+          number: +key
+        }))
+      } else if (keyCode === 8) {
+        dispatch(clearPencilMark({
+          row: selectedIndexes.row,
+          column: selectedIndexes.column
+        }))
+      }
     }
   })
 
