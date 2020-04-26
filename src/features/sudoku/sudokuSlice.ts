@@ -44,10 +44,27 @@ export const sudokuSlice = createSlice({
         })
       );
     },
+    setPencilMark: (
+      state, action: PayloadAction<{ row: number, column: number, number: number }>
+    ) => {
+      const { row, column, number } = action.payload
+
+      state.cellData = state.cellData.map((r, rIndex) => r.map((c, cIndex) => {
+        if (rIndex === row && cIndex === column) {
+          return {
+            ...c,
+            pencilMarks: Array.from(new Set(c.pencilMarks).add(number))
+          }
+        }
+        else {
+          return c
+        }
+      }))
+    }
   },
 });
 
-export const { initializeBoard } = sudokuSlice.actions;
+export const { initializeBoard, setPencilMark } = sudokuSlice.actions;
 
 export const rowCount = (state: RootState) => state.sudoku.rowCount;
 export const columnCount = (state: RootState) => state.sudoku.columnCount;

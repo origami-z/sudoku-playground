@@ -7,7 +7,9 @@ import {
   // columnCount,
   cellData,
   initializeBoard,
+  setPencilMark
 } from "./sudokuSlice";
+import { useKeyDown } from "../hooks/useKeyPress";
 
 import styles from "./Sudoku.module.css";
 
@@ -24,8 +26,18 @@ export function Sudoku() {
 
   const [newRow, setNewRow] = useState(9);
   const [newColumn, setNewColumn] = useState(9);
-
   const [selectedIndexes, setSelectedIndexes] = useState<CellIndex>({ row: undefined, column: undefined })
+
+  useKeyDown(({ key, keyCode }) => {
+    if (keyCode > 48 && keyCode < 58 && selectedIndexes.row !== undefined && selectedIndexes.column !== undefined) {
+      console.log('keyDown', +key, 'cell', selectedIndexes.row, selectedIndexes.column)
+      dispatch(setPencilMark({
+        row: selectedIndexes.row,
+        column: selectedIndexes.column,
+        number: +key
+      }))
+    }
+  })
 
   return (
     <div>
@@ -54,13 +66,14 @@ export function Sudoku() {
         </button>
       </div>
       {data.map((r, rowIndex) => (
-        <div className={styles.row}>
+        <div className={styles.row} key={`row${rowIndex}`}>
           {r.map((c, columnIndex) => (
             <div className={cn(styles.cell, {
               [styles.selectedCell]: rowIndex === selectedIndexes.row && columnIndex === selectedIndexes.column
             })}
               onClick={() => setSelectedIndexes({ row: rowIndex, column: columnIndex })}
-            >{c.pencilMarks.join("")}</div>
+              key={`c${columnIndex}r${rowIndex}`}
+            >{c.pencilMarks.slice().sort().join(" ")}</div>
           ))}
         </div>
       ))}
