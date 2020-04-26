@@ -78,3 +78,7 @@
 .button:not(:last-child) {
   margin-right: var(--gap-size);
 }
+
+.textArea {
+  width: 100%;
+}

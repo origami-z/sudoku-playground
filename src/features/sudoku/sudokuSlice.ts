@@ -7,7 +7,7 @@ interface CellData {
   possible: number[];
 }
 
-interface CellIndex {
+export interface CellIndex {
   row: number;
   column: number;
 }
@@ -182,6 +182,12 @@ export const sudokuSlice = createSlice({
 
       state.invalidCells = Array.from(invalidSet);
     },
+    // exportConstraint: (state) => {
+    //   console.dir(JSON.stringify(state.constraints));
+    // },
+    importConstraints: (state, action: PayloadAction<string>) => {
+      state.constraints = JSON.parse(action.payload);
+    },
   },
 });
 
@@ -192,11 +198,14 @@ export const {
   setFinalNumber,
   clearFinalNumber,
   validateConstraint,
+  // exportConstraint,
+  importConstraints,
 } = sudokuSlice.actions;
 
 export const rowCount = (state: RootState) => state.sudoku.rowCount;
 export const columnCount = (state: RootState) => state.sudoku.columnCount;
 export const cellData = (state: RootState) => state.sudoku.cellData;
 export const invalidCells = (state: RootState) => state.sudoku.invalidCells;
+export const constraints = (state: RootState) => state.sudoku.constraints;
 
 export default sudokuSlice.reducer;

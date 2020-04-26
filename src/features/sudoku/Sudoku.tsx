@@ -17,6 +17,7 @@ import {
 import { useKeyDown } from "../hooks/useKeyPress";
 
 import styles from "./Sudoku.module.css";
+import { SudokuSetupPanel } from "./SudokuSetupPanel";
 
 interface CellIndex {
   row?: number;
@@ -31,8 +32,6 @@ export function Sudoku() {
 
   const dispatch = useDispatch();
 
-  const [newRow, setNewRow] = useState(9);
-  const [newColumn, setNewColumn] = useState(9);
   const [selectedIndexes, setSelectedIndexes] = useState<CellIndex>({
     row: undefined,
     column: undefined,
@@ -42,6 +41,7 @@ export function Sudoku() {
 
   useEffect(() => {
     dispatch(initializeBoard({ row: 9, column: 9 }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useKeyDown(({ key, keyCode }) => {
@@ -49,13 +49,13 @@ export function Sudoku() {
       selectedIndexes.row !== undefined &&
       selectedIndexes.column !== undefined
     ) {
-      console.log(
-        "keyDown",
-        key,
-        "cell",
-        selectedIndexes.row,
-        selectedIndexes.column
-      );
+      // console.log(
+      //   "keyDown",
+      //   key,
+      //   "cell",
+      //   selectedIndexes.row,
+      //   selectedIndexes.column
+      // );
 
       if (keyCode > 48 && keyCode < 58) {
         dispatch(
@@ -128,30 +128,7 @@ export function Sudoku() {
           ))}
         </div>
       ))}
-      <div className={styles.row}>
-        <input
-          className={styles.textbox}
-          aria-label="Set row number"
-          value={newRow}
-          onChange={(e) => setNewRow(Number.parseInt(e.target.value))}
-          type="number"
-        />
-        <input
-          className={styles.textbox}
-          aria-label="Set column number"
-          value={newColumn}
-          onChange={(e) => setNewColumn(Number.parseInt(e.target.value))}
-          type="number"
-        />
-        <button
-          className={styles.button}
-          onClick={() =>
-            dispatch(initializeBoard({ row: newRow, column: newColumn }))
-          }
-        >
-          Initialize
-        </button>
-      </div>
+      <SudokuSetupPanel />
     </div>
   );
 }
