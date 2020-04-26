@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import cn from 'classnames';
 import { useSelector, useDispatch } from "react-redux";
 
 import {
@@ -10,6 +11,10 @@ import {
 
 import styles from "./Sudoku.module.css";
 
+interface CellIndex {
+  row?: number, column?: number
+}
+
 export function Sudoku() {
   // const row = useSelector(rowCount);
   // const column = useSelector(columnCount);
@@ -19,6 +24,8 @@ export function Sudoku() {
 
   const [newRow, setNewRow] = useState(9);
   const [newColumn, setNewColumn] = useState(9);
+
+  const [selectedIndexes, setSelectedIndexes] = useState<CellIndex>({ row: undefined, column: undefined })
 
   return (
     <div>
@@ -46,10 +53,14 @@ export function Sudoku() {
           Initialize
         </button>
       </div>
-      {data.map((r) => (
+      {data.map((r, rowIndex) => (
         <div className={styles.row}>
-          {r.map((c) => (
-            <div className={styles.cell}>{c.pencilMarks.join("")}</div>
+          {r.map((c, columnIndex) => (
+            <div className={cn(styles.cell, {
+              [styles.selectedCell]: rowIndex === selectedIndexes.row && columnIndex === selectedIndexes.column
+            })}
+              onClick={() => setSelectedIndexes({ row: rowIndex, column: columnIndex })}
+            >{c.pencilMarks.join("")}</div>
           ))}
         </div>
       ))}

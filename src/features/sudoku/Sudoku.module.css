@@ -1,3 +1,7 @@
+:root {
+  --gap-size : 8px;
+}
+
 .row {
   display: flex;
   align-items: center;
@@ -5,7 +9,7 @@
 }
 
 .row:not(:last-child) {
-  margin-bottom: 16px;
+  margin-bottom: var(--gap-size);
 }
 
 .cell {
@@ -19,8 +23,12 @@
   border: solid 1px black;
 }
 
+.selectedCell {
+  border-color: blue;
+}
+
 .cell:not(:last-child) {
-  margin-right: 16px;
+  margin-right: var(--gap-size);
 }
 
 .textbox {
