@@ -1,5 +1,5 @@
 :root {
-  --gap-size : 8px;
+  --gap-size: 8px;
 }
 
 .row {
@@ -32,6 +32,10 @@
 
 .selectedCell {
   border-color: blue;
+}
+
+.invalidCell {
+  border-color: red;
 }
 
 .cell:not(:last-child) {

@@ -7,11 +7,26 @@ interface CellData {
   possible: number[];
 }
 
+interface CellIndex {
+  row: number;
+  column: number;
+}
+
+type SudokuConstraintType = "distinct" | "equality" | "inequality";
+
+interface SudokuConstraint {
+  cells: Array<CellIndex>;
+  type: SudokuConstraintType;
+}
+
 interface SudokuState {
   rowCount: number;
   columnCount: number;
 
   cellData: Array<Array<CellData>>;
+
+  constraints: Array<SudokuConstraint>;
+  invalidCells: Array<CellIndex>;
 }
 
 const initialState: SudokuState = {
@@ -24,6 +39,8 @@ const initialState: SudokuState = {
       confirmed: undefined,
     })
   ),
+  constraints: [],
+  invalidCells: [],
 };
 
 export const sudokuSlice = createSlice({
@@ -38,88 +55,148 @@ export const sudokuSlice = createSlice({
       state.rowCount = row;
       state.columnCount = column;
 
-      state.cellData = Array(row).fill(
+      const cellData: Array<Array<CellData>> = Array(row).fill(
         Array(column).fill({
           possible: Array.from(Array(column).keys()),
           pencilMarks: [],
         })
       );
+      state.cellData = cellData;
+
+      const rowConstraints: Array<SudokuConstraint> = cellData.map(
+        (r, rIndex) => ({
+          cells: r.map((_, cIndex) => ({ row: rIndex, column: cIndex })),
+          type: "distinct",
+        })
+      );
+
+      const columnConstraints: Array<SudokuConstraint> = cellData.map(
+        (r, rIndex) => ({
+          cells: r.map((_, cIndex) => ({ column: rIndex, row: cIndex })),
+          type: "distinct",
+        })
+      );
+
+      state.constraints = [...rowConstraints, ...columnConstraints];
     },
     setPencilMark: (
-      state, action: PayloadAction<{ row: number, column: number, number: number }>
+      state,
+      action: PayloadAction<{ row: number; column: number; number: number }>
     ) => {
-      const { row, column, number } = action.payload
+      const { row, column, number } = action.payload;
 
-      state.cellData = state.cellData.map((r, rIndex) => r.map((c, cIndex) => {
-        if (rIndex === row && cIndex === column) {
-          return {
-            ...c,
-            pencilMarks: Array.from(new Set(c.pencilMarks).add(number))
+      state.cellData = state.cellData.map((r, rIndex) =>
+        r.map((c, cIndex) => {
+          if (rIndex === row && cIndex === column) {
+            return {
+              ...c,
+              pencilMarks: Array.from(new Set(c.pencilMarks).add(number)),
+            };
+          } else {
+            return c;
           }
-        }
-        else {
-          return c
-        }
-      }))
+        })
+      );
     },
     clearPencilMark: (
-      state, action: PayloadAction<{ row: number, column: number }>
+      state,
+      action: PayloadAction<{ row: number; column: number }>
     ) => {
-      const { row, column } = action.payload
+      const { row, column } = action.payload;
 
-      state.cellData = state.cellData.map((r, rIndex) => r.map((c, cIndex) => {
-        if (rIndex === row && cIndex === column) {
-          return {
-            ...c,
-            pencilMarks: []
+      state.cellData = state.cellData.map((r, rIndex) =>
+        r.map((c, cIndex) => {
+          if (rIndex === row && cIndex === column) {
+            return {
+              ...c,
+              pencilMarks: [],
+            };
+          } else {
+            return c;
           }
-        }
-        else {
-          return c
-        }
-      }))
+        })
+      );
     },
     setFinalNumber: (
-      state, action: PayloadAction<{ row: number, column: number, number: number }>
+      state,
+      action: PayloadAction<{ row: number; column: number; number: number }>
     ) => {
-      const { row, column, number } = action.payload
+      const { row, column, number } = action.payload;
 
-      state.cellData = state.cellData.map((r, rIndex) => r.map((c, cIndex) => {
-        if (rIndex === row && cIndex === column) {
-          return {
-            ...c,
-            confirmed: number
+      state.cellData = state.cellData.map((r, rIndex) =>
+        r.map((c, cIndex) => {
+          if (rIndex === row && cIndex === column) {
+            return {
+              ...c,
+              confirmed: number,
+            };
+          } else {
+            return c;
           }
-        }
-        else {
-          return c
-        }
-      }))
+        })
+      );
     },
     clearFinalNumber: (
-      state, action: PayloadAction<{ row: number, column: number }>
+      state,
+      action: PayloadAction<{ row: number; column: number }>
     ) => {
-      const { row, column } = action.payload
+      const { row, column } = action.payload;
 
-      state.cellData = state.cellData.map((r, rIndex) => r.map((c, cIndex) => {
-        if (rIndex === row && cIndex === column) {
-          return {
-            ...c,
-            confirmed: undefined
+      state.cellData = state.cellData.map((r, rIndex) =>
+        r.map((c, cIndex) => {
+          if (rIndex === row && cIndex === column) {
+            return {
+              ...c,
+              confirmed: undefined,
+            };
+          } else {
+            return c;
           }
+        })
+      );
+    },
+    validateConstraint: (state) => {
+      const invalidSet = new Set<CellIndex>();
+
+      state.constraints.forEach((constraint) => {
+        switch (constraint.type) {
+          case "distinct":
+            for (let i = 0; i < constraint.cells.length; i++) {
+              for (let j = i + 1; j < constraint.cells.length; j++) {
+                const firstValue =
+                  state.cellData[constraint.cells[i].row][
+                    constraint.cells[i].column
+                  ].confirmed;
+                const secondValue =
+                  state.cellData[constraint.cells[j].row][
+                    constraint.cells[j].column
+                  ].confirmed;
+                if (firstValue && firstValue === secondValue) {
+                  invalidSet.add(constraint.cells[i]);
+                  invalidSet.add(constraint.cells[j]);
+                }
+              }
+            }
         }
-        else {
-          return c
-        }
-      }))
+      });
+
+      state.invalidCells = Array.from(invalidSet);
     },
   },
 });
 
-export const { initializeBoard, setPencilMark, clearPencilMark, setFinalNumber, clearFinalNumber } = sudokuSlice.actions;
+export const {
+  initializeBoard,
+  setPencilMark,
+  clearPencilMark,
+  setFinalNumber,
+  clearFinalNumber,
+  validateConstraint,
+} = sudokuSlice.actions;
 
 export const rowCount = (state: RootState) => state.sudoku.rowCount;
 export const columnCount = (state: RootState) => state.sudoku.columnCount;
 export const cellData = (state: RootState) => state.sudoku.cellData;
+export const invalidCells = (state: RootState) => state.sudoku.invalidCells;
 
 export default sudokuSlice.reducer;
