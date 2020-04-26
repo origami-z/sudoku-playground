@@ -6,6 +6,7 @@ import {
   initializeBoard,
   constraints as cst,
   importConstraints,
+  sudokuConstraintTypes,
 } from "./sudokuSlice";
 
 import styles from "./Sudoku.module.css";
@@ -27,12 +28,7 @@ export function SudokuSetupPanel() {
       console.dir(newConstraints);
       if (
         Array.isArray(newConstraints) &&
-        newConstraints.every(
-          (c) =>
-            c.type === "distinct" ||
-            c.type === "equality" ||
-            c.type === "inequality"
-        )
+        newConstraints.every((c) => sudokuConstraintTypes.includes(c.type))
       ) {
         setConstraintValid(true);
       } else {

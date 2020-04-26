@@ -12,7 +12,13 @@ export interface CellIndex {
   column: number;
 }
 
-type SudokuConstraintType = "distinct" | "equality" | "inequality";
+export const sudokuConstraintTypes = [
+  "distinct",
+  "equality",
+  "inequality",
+  "sumTo",
+] as const;
+export type SudokuConstraintType = typeof sudokuConstraintTypes[number];
 
 interface SudokuConstraint {
   cells: Array<CellIndex>;
