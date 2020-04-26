@@ -16,11 +16,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 
   width: 64px;
   height: 64px;
 
   border: solid 1px black;
+}
+
+.pencilMarks {
+  position: absolute;
+  top: 0;
+  font-size: 8px;
 }
 
 .selectedCell {
@@ -62,4 +69,8 @@
 
 .button:active {
   background-color: rgba(112, 76, 182, 0.2);
+}
+
+.button:not(:last-child) {
+  margin-right: var(--gap-size);
 }

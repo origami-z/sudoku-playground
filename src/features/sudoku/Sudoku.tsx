@@ -8,7 +8,9 @@ import {
   cellData,
   initializeBoard,
   setPencilMark,
-  clearPencilMark
+  clearPencilMark,
+  setFinalNumber,
+  clearFinalNumber
 } from "./sudokuSlice";
 import { useKeyDown } from "../hooks/useKeyPress";
 
@@ -29,18 +31,27 @@ export function Sudoku() {
   const [newColumn, setNewColumn] = useState(9);
   const [selectedIndexes, setSelectedIndexes] = useState<CellIndex>({ row: undefined, column: undefined })
 
+  const [isSetPencilMark, setIsSetPencilMark] = useState(false);
+
   useKeyDown(({ key, keyCode }) => {
     if (selectedIndexes.row !== undefined && selectedIndexes.column !== undefined) {
       console.log('keyDown', key, 'cell', selectedIndexes.row, selectedIndexes.column)
 
       if (keyCode > 48 && keyCode < 58) {
-        dispatch(setPencilMark({
+        dispatch(isSetPencilMark ? setPencilMark({
+          row: selectedIndexes.row,
+          column: selectedIndexes.column,
+          number: +key
+        }) : setFinalNumber({
           row: selectedIndexes.row,
           column: selectedIndexes.column,
           number: +key
         }))
       } else if (keyCode === 8) {
-        dispatch(clearPencilMark({
+        dispatch(isSetPencilMark ? clearPencilMark({
+          row: selectedIndexes.row,
+          column: selectedIndexes.column
+        }) : clearFinalNumber({
           row: selectedIndexes.row,
           column: selectedIndexes.column
         }))
@@ -50,6 +61,35 @@ export function Sudoku() {
 
   return (
     <div>
+      <div className={styles.row}>
+        <button
+          className={styles.button}
+          onClick={() =>
+            setIsSetPencilMark(x => !x)
+          }
+        >
+          {isSetPencilMark ? 'Set Pencil Mark' : 'Set Final'}
+        </button>
+      </div>
+      {data.map((r, rowIndex) => (
+        <div className={styles.row} key={`row${rowIndex}`}>
+          {r.map((c, columnIndex) => (
+            <div className={cn(styles.cell, {
+              [styles.selectedCell]: rowIndex === selectedIndexes.row && columnIndex === selectedIndexes.column
+            })}
+              onClick={() => setSelectedIndexes({ row: rowIndex, column: columnIndex })}
+              key={`c${columnIndex}r${rowIndex}`}
+            >
+              <div className={styles.pencilMarks}>
+                {c.pencilMarks.slice().sort().join(" ")}
+              </div>
+              <div>
+                {c.confirmed}
+              </div>
+            </div>
+          ))}
+        </div>
+      ))}
       <div className={styles.row}>
         <input
           className={styles.textbox}
@@ -74,18 +114,6 @@ export function Sudoku() {
           Initialize
         </button>
       </div>
-      {data.map((r, rowIndex) => (
-        <div className={styles.row} key={`row${rowIndex}`}>
-          {r.map((c, columnIndex) => (
-            <div className={cn(styles.cell, {
-              [styles.selectedCell]: rowIndex === selectedIndexes.row && columnIndex === selectedIndexes.column
-            })}
-              onClick={() => setSelectedIndexes({ row: rowIndex, column: columnIndex })}
-              key={`c${columnIndex}r${rowIndex}`}
-            >{c.pencilMarks.slice().sort().join(" ")}</div>
-          ))}
-        </div>
-      ))}
     </div>
   );
 }

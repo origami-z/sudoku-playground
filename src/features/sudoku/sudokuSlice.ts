@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 
 interface CellData {
-  // confirmed: number;
+  confirmed?: number;
   pencilMarks: number[];
   possible: number[];
 }
@@ -21,6 +21,7 @@ const initialState: SudokuState = {
     Array(9).fill({
       possible: Array.from(Array(9).keys()),
       pencilMarks: [],
+      confirmed: undefined,
     })
   ),
 };
@@ -78,10 +79,44 @@ export const sudokuSlice = createSlice({
         }
       }))
     },
+    setFinalNumber: (
+      state, action: PayloadAction<{ row: number, column: number, number: number }>
+    ) => {
+      const { row, column, number } = action.payload
+
+      state.cellData = state.cellData.map((r, rIndex) => r.map((c, cIndex) => {
+        if (rIndex === row && cIndex === column) {
+          return {
+            ...c,
+            confirmed: number
+          }
+        }
+        else {
+          return c
+        }
+      }))
+    },
+    clearFinalNumber: (
+      state, action: PayloadAction<{ row: number, column: number }>
+    ) => {
+      const { row, column } = action.payload
+
+      state.cellData = state.cellData.map((r, rIndex) => r.map((c, cIndex) => {
+        if (rIndex === row && cIndex === column) {
+          return {
+            ...c,
+            confirmed: undefined
+          }
+        }
+        else {
+          return c
+        }
+      }))
+    },
   },
 });
 
-export const { initializeBoard, setPencilMark, clearPencilMark } = sudokuSlice.actions;
+export const { initializeBoard, setPencilMark, clearPencilMark, setFinalNumber, clearFinalNumber } = sudokuSlice.actions;
 
 export const rowCount = (state: RootState) => state.sudoku.rowCount;
 export const columnCount = (state: RootState) => state.sudoku.columnCount;
