@@ -20,6 +20,7 @@
 
   width: 64px;
   height: 64px;
+  font-size: 24px;
 
   border: solid 1px black;
 }
@@ -31,6 +32,7 @@
 }
 
 .selectedCell {
+  background-color: #f2f5f7;
   border-color: blue;
 }
 

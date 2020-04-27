@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import cn from "classnames";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -6,23 +6,18 @@ import {
   // rowCount,
   // columnCount,
   cellData,
-  initializeBoard,
   setPencilMark,
   clearPencilMark,
   setFinalNumber,
   clearFinalNumber,
   validateConstraint,
   invalidCells,
+  CellIndex,
 } from "./sudokuSlice";
 import { useKeyDown } from "../hooks/useKeyPress";
 
 import styles from "./Sudoku.module.css";
 import { SudokuSetupPanel } from "./SudokuSetupPanel";
-
-interface CellIndex {
-  row?: number;
-  column?: number;
-}
 
 export function Sudoku() {
   // const row = useSelector(rowCount);
@@ -32,23 +27,19 @@ export function Sudoku() {
 
   const dispatch = useDispatch();
 
-  const [selectedIndexes, setSelectedIndexes] = useState<CellIndex>({
-    row: undefined,
-    column: undefined,
-  });
+  const [selectedIndexes, setSelectedIndexes] = useState<Array<CellIndex>>([]);
 
   const [isSetPencilMark, setIsSetPencilMark] = useState(false);
 
-  useEffect(() => {
-    dispatch(initializeBoard({ row: 9, column: 9 }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // // Initialize the board on load
+  // useEffect(() => {
+  //   dispatch(initializeBoard({ row: 9, column: 9 }));
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   useKeyDown(({ key, keyCode }) => {
-    if (
-      selectedIndexes.row !== undefined &&
-      selectedIndexes.column !== undefined
-    ) {
+    // Temporarily only support one select cell
+    if (selectedIndexes.length === 1) {
       // console.log(
       //   "keyDown",
       //   key,
@@ -57,17 +48,19 @@ export function Sudoku() {
       //   selectedIndexes.column
       // );
 
+      const selectedIndex = selectedIndexes[0];
+
       if (keyCode > 48 && keyCode < 58) {
         dispatch(
           isSetPencilMark
             ? setPencilMark({
-                row: selectedIndexes.row,
-                column: selectedIndexes.column,
+                row: selectedIndex.row,
+                column: selectedIndex.column,
                 number: +key,
               })
             : setFinalNumber({
-                row: selectedIndexes.row,
-                column: selectedIndexes.column,
+                row: selectedIndex.row,
+                column: selectedIndex.column,
                 number: +key,
               })
         );
@@ -75,17 +68,36 @@ export function Sudoku() {
         dispatch(
           isSetPencilMark
             ? clearPencilMark({
-                row: selectedIndexes.row,
-                column: selectedIndexes.column,
+                row: selectedIndex.row,
+                column: selectedIndex.column,
               })
             : clearFinalNumber({
-                row: selectedIndexes.row,
-                column: selectedIndexes.column,
+                row: selectedIndex.row,
+                column: selectedIndex.column,
               })
         );
       }
+    } else if (selectedIndexes.length > 1) {
+      console.warn("Keydown on multiple selected cell is not supported (yet).");
     }
   });
+
+  function cellOnClick(
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    rowIndex: number,
+    columnIndex: number
+  ) {
+    // Command, Ctrl, Shift keys
+    if (event.metaKey || event.ctrlKey || event.shiftKey) {
+      setSelectedIndexes(
+        Array.from(
+          new Set(selectedIndexes).add({ row: rowIndex, column: columnIndex })
+        )
+      );
+    } else {
+      setSelectedIndexes([{ row: rowIndex, column: columnIndex }]);
+    }
+  }
 
   return (
     <div>
@@ -108,16 +120,14 @@ export function Sudoku() {
           {r.map((c, columnIndex) => (
             <div
               className={cn(styles.cell, {
-                [styles.selectedCell]:
-                  rowIndex === selectedIndexes.row &&
-                  columnIndex === selectedIndexes.column,
+                [styles.selectedCell]: selectedIndexes.some(
+                  (i) => i.row === rowIndex && i.column === columnIndex
+                ),
                 [styles.invalidCell]: invalid.some(
                   (x) => rowIndex === x.row && columnIndex === x.column
                 ),
               })}
-              onClick={() =>
-                setSelectedIndexes({ row: rowIndex, column: columnIndex })
-              }
+              onClick={(e) => cellOnClick(e, rowIndex, columnIndex)}
               key={`c${columnIndex}r${rowIndex}`}
             >
               <div className={styles.pencilMarks}>
@@ -128,7 +138,7 @@ export function Sudoku() {
           ))}
         </div>
       ))}
-      <SudokuSetupPanel />
+      <SudokuSetupPanel selectedCells={selectedIndexes} />
     </div>
   );
 }

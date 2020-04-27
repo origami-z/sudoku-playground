@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
+import default9x9Constraint from "./classis9x9defaultConstraints.json";
 
 interface CellData {
   confirmed?: number;
@@ -45,7 +46,7 @@ const initialState: SudokuState = {
       confirmed: undefined,
     })
   ),
-  constraints: [],
+  constraints: default9x9Constraint as Array<SudokuConstraint>,
   invalidCells: [],
 };
 
@@ -194,6 +195,9 @@ export const sudokuSlice = createSlice({
     importConstraints: (state, action: PayloadAction<string>) => {
       state.constraints = JSON.parse(action.payload);
     },
+    addConstrainst: (state, action: PayloadAction<SudokuConstraint>) => {
+      state.constraints.push(action.payload);
+    },
   },
 });
 
@@ -206,6 +210,7 @@ export const {
   validateConstraint,
   // exportConstraint,
   importConstraints,
+  addConstrainst,
 } = sudokuSlice.actions;
 
 export const rowCount = (state: RootState) => state.sudoku.rowCount;

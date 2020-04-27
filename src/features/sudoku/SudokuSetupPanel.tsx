@@ -7,11 +7,18 @@ import {
   constraints as cst,
   importConstraints,
   sudokuConstraintTypes,
+  CellIndex,
+  SudokuConstraintType,
+  addConstrainst,
 } from "./sudokuSlice";
 
 import styles from "./Sudoku.module.css";
 
-export function SudokuSetupPanel() {
+interface SudokuSetupPanelProps {
+  selectedCells: Array<CellIndex>;
+}
+
+export function SudokuSetupPanel(props: SudokuSetupPanelProps) {
   const dispatch = useDispatch();
   const constraints = useSelector(cst);
 
@@ -19,6 +26,10 @@ export function SudokuSetupPanel() {
   const [newColumn, setNewColumn] = useState(9);
   const [constraintsString, setConstraintsString] = useState("");
   const [constraintValid, setConstraintValid] = useState(true);
+
+  const [newConstraintType, setNewConstraintType] = useState<
+    SudokuConstraintType
+  >("distinct");
 
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -108,6 +119,37 @@ export function SudokuSetupPanel() {
         </button>
         <button className={styles.button} onClick={() => importString()}>
           Import
+        </button>
+      </div>
+      <div className={styles.row}>
+        <p>{props.selectedCells.length} selected cell(s)</p>
+      </div>
+      <div className={styles.row}>
+        <p>New constraint type - </p>
+        <select
+          value={newConstraintType}
+          onChange={(e) => {
+            setNewConstraintType(e.target.value as SudokuConstraintType);
+          }}
+        >
+          {sudokuConstraintTypes.map((t) => (
+            <option key={t}>{t}</option>
+          ))}
+        </select>
+      </div>
+      <div className={styles.row}>
+        <button
+          className={styles.button}
+          onClick={() =>
+            dispatch(
+              addConstrainst({
+                cells: props.selectedCells,
+                type: newConstraintType,
+              })
+            )
+          }
+        >
+          Add new constraint
         </button>
       </div>
     </>
