@@ -40,17 +40,16 @@ export function Sudoku() {
 
   useKeyDown(({ key, keyCode }) => {
     // Temporarily only support one select cell
-    if (selectedIndexes.length === 1) {
-      // console.log(
-      //   "keyDown",
-      //   key,
-      //   "cell",
-      //   selectedIndexes.row,
-      //   selectedIndexes.column
-      // );
+    // if (selectedIndexes.length === 1) {
+    // console.log(
+    //   "keyDown",
+    //   key,
+    //   "cell",
+    //   selectedIndexes.row,
+    //   selectedIndexes.column
+    // );
 
-      const selectedIndex = selectedIndexes[0];
-
+    for (const selectedIndex of selectedIndexes) {
       if (keyCode > 48 && keyCode < 58) {
         dispatch(
           isSetPencilMark
@@ -78,9 +77,10 @@ export function Sudoku() {
               })
         );
       }
-    } else if (selectedIndexes.length > 1) {
-      console.warn("Keydown on multiple selected cell is not supported (yet).");
     }
+    // } else if (selectedIndexes.length > 1) {
+    //   console.warn("Keydown on multiple selected cell is not supported (yet).");
+    // }
   });
 
   function cellOnClick(
