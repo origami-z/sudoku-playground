@@ -1,6 +1,16 @@
 Playground for sudoku, trying out some advanced technics and advanced constraints.
 
-# CRA
+## TODO
+
+- Support predefined/populated (Question/Answer) cell using different color, with import/export
+- Support notification when all cells are validated without error
+- Support undo/redo manual input
+- Support cell custom coloring
+- Support auto populating possible pencil marks for selected cells (pre-requisite for auto solver)
+- Support auto solver with full history replay
+- Support additional constraint 'sumTo' logic (and more to come)
+
+# Development based on CRA
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), using the [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) template.
 

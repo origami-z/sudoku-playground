@@ -15,9 +15,9 @@ export interface CellIndex {
 
 export const sudokuConstraintTypes = [
   "distinct",
-  "equality",
-  "inequality",
-  "sumTo",
+  "equality", // unsupported
+  "inequality", // unsupported
+  "sumTo", // unsupported
 ] as const;
 export type SudokuConstraintType = typeof sudokuConstraintTypes[number];
 
