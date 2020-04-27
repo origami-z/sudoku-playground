@@ -13,6 +13,7 @@ import {
   validateConstraint,
   invalidCells,
   CellIndex,
+  clearInvalidCells,
 } from "./sudokuSlice";
 import { useKeyDown } from "../hooks/useKeyPress";
 
@@ -113,6 +114,15 @@ export function Sudoku() {
           onClick={() => dispatch(validateConstraint())}
         >
           Validate
+        </button>
+        <button
+          className={styles.button}
+          onClick={() => {
+            setSelectedIndexes([]);
+            dispatch(clearInvalidCells());
+          }}
+        >
+          Clear selection
         </button>
       </div>
       {data.map((r, rowIndex) => (

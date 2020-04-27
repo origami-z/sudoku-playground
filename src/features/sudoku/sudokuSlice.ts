@@ -189,6 +189,9 @@ export const sudokuSlice = createSlice({
 
       state.invalidCells = Array.from(invalidSet);
     },
+    clearInvalidCells: (state) => {
+      state.invalidCells = [];
+    },
     // exportConstraint: (state) => {
     //   console.dir(JSON.stringify(state.constraints));
     // },
@@ -208,6 +211,7 @@ export const {
   setFinalNumber,
   clearFinalNumber,
   validateConstraint,
+  clearInvalidCells,
   // exportConstraint,
   importConstraints,
   addConstrainst,
