@@ -12,6 +12,12 @@
   margin-bottom: var(--gap-size);
 }
 
+.gridRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .cell {
   display: flex;
   align-items: center;
@@ -33,15 +39,27 @@
 
 .selectedCell {
   background-color: #f2f5f7;
-  border-color: blue;
+  /* border-color: blue; */
 }
 
 .invalidCell {
   border-color: red;
 }
 
-.cell:not(:last-child) {
-  margin-right: var(--gap-size);
+.boldCellLeft {
+  border-left: solid 2px black;
+}
+
+.boldCellTop {
+  border-top: solid 2px black;
+}
+
+.boldCellRight {
+  border-right: solid 2px black;
+}
+
+.boldCellBottom {
+  border-bottom: solid 2px black;
 }
 
 .textbox {

@@ -147,10 +147,14 @@ export function Sudoku() {
         </button>
       </div>
       {data.map((r, rowIndex) => (
-        <div className={styles.row} key={`row${rowIndex}`}>
+        <div className={styles.gridRow} key={`row${rowIndex}`}>
           {r.map((c, columnIndex) => (
             <div
               className={cn(styles.cell, {
+                [styles.boldCellLeft]: columnIndex % 3 === 0,
+                [styles.boldCellRight]: columnIndex % 3 === 2,
+                [styles.boldCellTop]: rowIndex % 3 === 0,
+                [styles.boldCellBottom]: rowIndex % 3 === 2,
                 [styles.selectedCell]: selectedIndexes.some(
                   (i) => i.row === rowIndex && i.column === columnIndex
                 ),
