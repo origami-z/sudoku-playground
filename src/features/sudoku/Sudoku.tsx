@@ -88,13 +88,34 @@ export function Sudoku() {
     rowIndex: number,
     columnIndex: number
   ) {
-    // Command, Ctrl, Shift keys
-    if (event.metaKey || event.ctrlKey || event.shiftKey) {
+    // Command, Ctrl keys
+    if (event.metaKey || event.ctrlKey) {
       setSelectedIndexes(
         Array.from(
           new Set(selectedIndexes).add({ row: rowIndex, column: columnIndex })
         )
       );
+    } else if (event.shiftKey) {
+      if (selectedIndexes.length === 0) {
+        setSelectedIndexes([{ row: rowIndex, column: columnIndex }]);
+      } else {
+        // Approximate last one
+        const lastSelected = selectedIndexes[selectedIndexes.length - 1];
+        const rowFrom = Math.min(rowIndex, lastSelected.row);
+        const rowTo = Math.max(rowIndex, lastSelected.row);
+        const columnFrom = Math.min(columnIndex, lastSelected.column);
+        const columnTo = Math.max(columnIndex, lastSelected.column);
+
+        const existingSet = new Set(selectedIndexes);
+
+        for (let i = rowFrom; i <= rowTo; i++) {
+          for (let j = columnFrom; j <= columnTo; j++) {
+            existingSet.add({ row: i, column: j });
+          }
+        }
+
+        setSelectedIndexes(Array.from(existingSet));
+      }
     } else {
       setSelectedIndexes([{ row: rowIndex, column: columnIndex }]);
     }
