@@ -9,6 +9,7 @@ Playground for sudoku, trying out some advanced technics and advanced constraint
 - Support auto populating possible pencil marks for selected cells (pre-requisite for auto solver)
 - Support auto solver with full history replay
 - Support additional constraint 'sumTo' logic (and more to come)
+- Support mobile usage (currently only keyboard usage)
 
 # Development based on CRA
 
