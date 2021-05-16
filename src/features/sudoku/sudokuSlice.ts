@@ -6,6 +6,7 @@ interface CellData {
   confirmed?: number;
   pencilMarks: number[];
   possible: number[];
+  predefined: boolean;
 }
 
 export interface CellIndex {
@@ -36,16 +37,34 @@ interface SudokuState {
   invalidCells: Array<CellIndex>;
 }
 
+const nineByNineEmpty = new Array(9).fill(undefined);
+
+const newInitialCellData: Array<Array<CellData>> = nineByNineEmpty.map((_1) =>
+  nineByNineEmpty.map((_2) => ({
+    possible: Array.from(Array(9).keys()),
+    pencilMarks: [],
+    confirmed: undefined,
+    predefined: false,
+  }))
+);
+
+const seed1 =
+  "5-482--69;---7-9-1-;---546---;2-695--3-;1396-42--;7---129--;62-4-----;9--2--473;--3-97--2;";
+
+seed1.split(";").forEach((r, rowIndex) => {
+  for (let columnIndex = 0; columnIndex < r.length; columnIndex++) {
+    const c = r.charAt(columnIndex);
+    if (c !== "-") {
+      newInitialCellData[rowIndex][columnIndex].confirmed = Number.parseInt(c);
+      newInitialCellData[rowIndex][columnIndex].predefined = true;
+    }
+  }
+});
+
 const initialState: SudokuState = {
   rowCount: 0,
   columnCount: 0,
-  cellData: Array(9).fill(
-    Array(9).fill({
-      possible: Array.from(Array(9).keys()),
-      pencilMarks: [],
-      confirmed: undefined,
-    })
-  ),
+  cellData: newInitialCellData,
   constraints: default9x9Constraint as Array<SudokuConstraint>,
   invalidCells: [],
 };
@@ -92,6 +111,9 @@ export const sudokuSlice = createSlice({
     ) => {
       const { row, column, number } = action.payload;
 
+      if (state.cellData[row][column].predefined) {
+        return;
+      }
       state.cellData = state.cellData.map((r, rIndex) =>
         r.map((c, cIndex) => {
           if (rIndex === row && cIndex === column) {
@@ -130,6 +152,10 @@ export const sudokuSlice = createSlice({
     ) => {
       const { row, column, number } = action.payload;
 
+      if (state.cellData[row][column].predefined) {
+        return;
+      }
+
       state.cellData = state.cellData.map((r, rIndex) =>
         r.map((c, cIndex) => {
           if (rIndex === row && cIndex === column) {
@@ -149,12 +175,62 @@ export const sudokuSlice = createSlice({
     ) => {
       const { row, column } = action.payload;
 
+      if (state.cellData[row][column].predefined) {
+        return;
+      }
+
       state.cellData = state.cellData.map((r, rIndex) =>
         r.map((c, cIndex) => {
           if (rIndex === row && cIndex === column) {
             return {
               ...c,
               confirmed: undefined,
+            };
+          } else {
+            return c;
+          }
+        })
+      );
+    },
+    setPredefined: (
+      state,
+      action: PayloadAction<{
+        row: number;
+        column: number;
+        number: number;
+        predefined?: boolean;
+      }>
+    ) => {
+      const { row, column, number, predefined = false } = action.payload;
+
+      state.cellData = state.cellData.map((r, rIndex) =>
+        r.map((c, cIndex) => {
+          if (rIndex === row && cIndex === column) {
+            return {
+              ...c,
+              confirmed: number,
+              pencilMarks: [],
+              predefined: predefined,
+            };
+          } else {
+            return c;
+          }
+        })
+      );
+    },
+    clearPredefined: (
+      state,
+      action: PayloadAction<{ row: number; column: number }>
+    ) => {
+      const { row, column } = action.payload;
+
+      state.cellData = state.cellData.map((r, rIndex) =>
+        r.map((c, cIndex) => {
+          if (rIndex === row && cIndex === column) {
+            return {
+              ...c,
+              confirmed: undefined,
+              predefined: false,
             };
           } else {
             return c;
@@ -215,6 +291,8 @@ export const {
   // exportConstraint,
   importConstraints,
   addConstrainst,
+  setPredefined,
+  clearPredefined,
 } = sudokuSlice.actions;
 
 export const rowCount = (state: RootState) => state.sudoku.rowCount;

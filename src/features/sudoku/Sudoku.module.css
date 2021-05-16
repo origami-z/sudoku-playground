@@ -38,8 +38,12 @@
 }
 
 .selectedCell {
-  background-color: #f2f5f7;
+  background-color: #dce3e8;
   /* border-color: blue; */
+}
+
+.predefinedCell {
+  font-weight: bolder;
 }
 
 .invalidCell {

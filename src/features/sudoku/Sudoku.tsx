@@ -10,7 +10,7 @@ import {
   clearPencilMark,
   setFinalNumber,
   clearFinalNumber,
-  validateConstraint,
+  validateConstraint as validateConstraintAction,
   invalidCells,
   CellIndex,
   clearInvalidCells,
@@ -31,14 +31,22 @@ export function Sudoku() {
   const [selectedIndexes, setSelectedIndexes] = useState<Array<CellIndex>>([]);
 
   const [isSetPencilMark, setIsSetPencilMark] = useState(false);
+  const [adminMode, setAdminMode] = useState(false);
 
   // // Initialize the board on load
   // useEffect(() => {
-  //   dispatch(initializeBoard({ row: 9, column: 9 }));
+  //   dispatch(setPredefined({ row: 4, column: 5, predefined: true, number: 3 }));
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, []);
 
-  useKeyDown(({ key, keyCode }) => {
+  const togglePencilMark = () => setIsSetPencilMark((x) => !x);
+  const validateConstraint = () => dispatch(validateConstraintAction());
+  const clearSelection = () => {
+    setSelectedIndexes([]);
+    dispatch(clearInvalidCells());
+  };
+
+  useKeyDown(({ key, keyCode, ctrlKey }) => {
     // Temporarily only support one select cell
     // if (selectedIndexes.length === 1) {
     // console.log(
@@ -48,6 +56,20 @@ export function Sudoku() {
     //   selectedIndexes.row,
     //   selectedIndexes.column
     // );
+
+    if (key.toLowerCase() === "t") {
+      togglePencilMark();
+      return;
+    } else if (key.toLowerCase() === "v") {
+      validateConstraint();
+      return;
+    } else if (key.toLowerCase() === "c") {
+      clearSelection();
+      return;
+    } else if (ctrlKey && key.toLowerCase() === "a") {
+      setAdminMode((a) => !a);
+      return;
+    }
 
     for (const selectedIndex of selectedIndexes) {
       if (keyCode > 48 && keyCode < 58) {
@@ -64,7 +86,7 @@ export function Sudoku() {
                 number: +key,
               })
         );
-      } else if (keyCode === 8) {
+      } else if (key === "Backspace" || key === "Delete") {
         dispatch(
           isSetPencilMark
             ? clearPencilMark({
@@ -117,35 +139,39 @@ export function Sudoku() {
         setSelectedIndexes(Array.from(existingSet));
       }
     } else {
-      setSelectedIndexes([{ row: rowIndex, column: columnIndex }]);
+      // Remove selection if selecting the one and only one
+      if (
+        selectedIndexes.length === 1 &&
+        selectedIndexes[0].column === columnIndex &&
+        selectedIndexes[0].row === rowIndex
+      ) {
+        setSelectedIndexes([]);
+      }
+      // Set a new selected index
+      else {
+        setSelectedIndexes([{ row: rowIndex, column: columnIndex }]);
+      }
     }
   }
 
   return (
     <div>
       <div className={styles.row}>
-        <button
-          className={styles.button}
-          onClick={() => setIsSetPencilMark((x) => !x)}
-        >
-          {isSetPencilMark ? "Set Pencil Mark" : "Set Final"}
+        <button className={styles.button} onClick={togglePencilMark}>
+          {isSetPencilMark ? "Entering Pencil Mark (T)" : "Entering Answer (T)"}
         </button>
-        <button
-          className={styles.button}
-          onClick={() => dispatch(validateConstraint())}
-        >
-          Validate
+        <button className={styles.button} onClick={validateConstraint}>
+          Validate (V)
         </button>
-        <button
-          className={styles.button}
-          onClick={() => {
-            setSelectedIndexes([]);
-            dispatch(clearInvalidCells());
-          }}
-        >
-          Clear selection
+        <button className={styles.button} onClick={clearSelection}>
+          Clear selection (C)
         </button>
       </div>
+      {adminMode && (
+        <div className={styles.row}>
+          <p style={{ color: "red" }}>Admin mode</p>
+        </div>
+      )}
       {data.map((r, rowIndex) => (
         <div className={styles.gridRow} key={`row${rowIndex}`}>
           {r.map((c, columnIndex) => (
@@ -168,12 +194,18 @@ export function Sudoku() {
               <div className={styles.pencilMarks}>
                 {c.pencilMarks.slice().sort().join(" ")}
               </div>
-              <div>{c.confirmed}</div>
+              <div
+                className={cn({
+                  [styles.predefinedCell]: c.predefined,
+                })}
+              >
+                {c.confirmed}
+              </div>
             </div>
           ))}
         </div>
       ))}
-      <SudokuSetupPanel selectedCells={selectedIndexes} />
+      {adminMode && <SudokuSetupPanel selectedCells={selectedIndexes} />}
     </div>
   );
 }
